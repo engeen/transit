@@ -10,41 +10,16 @@
 # Ignore the default SQLite database.
 /db/*.sqlite3
 /db/*.sqlite3-journal
-.byebug_history
 
 # Ignore all logfiles and tempfiles.
 /log/*
+/tmp/*
 !/log/.keep
-/tmp
+!/tmp/.keep
 
-
-
-# Ignore vim files
-*.pbf
-*.osm
-.vimrc
-*.swo
-*.swp
-*.sql
-
-# Ignore mac auxiliary folders/files
-/.DS_Store
-*/.DS_Store
-
-build/*.box
-*.box
-*.swp
+# Ignore Byebug command history file.
+.byebug_history
+chef/tmp
+tmp
+chef/cookbooks
 .vagrant
-/code
-/vagrant*-*
-.DS_Store
-/d2*-*-*
-/tmp
-/chef/cookbooks
-/chef/tmp
-.kitchen
-
-vagrant.local.rb
-
-chef/nodes/*
-./nodes

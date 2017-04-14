@@ -1,0 +1,13 @@
+# Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  result: one
+  timestamp: 2017-04-14 19:25:38
+  actor: MyString
+  value: MyText
+
+two:
+  result: two
+  timestamp: 2017-04-14 19:25:38
+  actor: MyString
+  value: MyText
