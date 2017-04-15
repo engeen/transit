@@ -10,10 +10,19 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170414193637) do
+ActiveRecord::Schema.define(version: 20170415201404) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "actors", force: :cascade do |t|
+    t.integer  "job_id"
+    t.string   "name"
+    t.string   "short_name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["job_id"], name: "index_actors_on_job_id", using: :btree
+  end
 
   create_table "jobs", force: :cascade do |t|
     t.string   "source"
@@ -26,13 +35,13 @@ ActiveRecord::Schema.define(version: 20170414193637) do
   end
 
   create_table "replicas", force: :cascade do |t|
-    t.integer  "result_id"
-    t.datetime "timestamp"
     t.string   "actor"
     t.text     "value"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["result_id"], name: "index_replicas_on_result_id", using: :btree
+    t.float    "timestamp"
+    t.integer  "job_id"
+    t.index ["job_id"], name: "index_replicas_on_job_id", using: :btree
   end
 
   create_table "results", force: :cascade do |t|
@@ -42,6 +51,7 @@ ActiveRecord::Schema.define(version: 20170414193637) do
     t.index ["job_id"], name: "index_results_on_job_id", using: :btree
   end
 
-  add_foreign_key "replicas", "results"
+  add_foreign_key "actors", "jobs"
+  add_foreign_key "replicas", "jobs"
   add_foreign_key "results", "jobs"
 end

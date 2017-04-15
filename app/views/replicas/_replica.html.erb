@@ -1,0 +1,22 @@
+
+   <div id="<%= id %>" class='replica d-flex align-items-stretch align-top' data-id="<%= data_id %>" data-timestamp="<%= data_timestamp %>">
+      <div class='time d-flex p-2 text-right' style='flex-basis: 100px; flex-shrink: 0;background-color: #FFF9C9'>
+        <a class='hover_toggler'>
+         <span class='acts text-left'>
+
+           <button class='remove btn btn-sm btn-danger'><i class="fa fa-times" aria-hidden="true"></i></button>
+           <button class='play btn btn-sm btn-success'><i class="fa fa-play" aria-hidden="true"></i></button>
+         </span>
+         <small>(<%= timestamp %>)</small>
+        </a>
+      </div>
+      <div class='auth p-2 text-right align-top' style='flex-basis: 50px; flex-shrink: 0;background-color: #FFF9C9; border-right: 1px Solid #DAD18F' >
+           <span><%= actor %>-</span>
+        </a>
+      </div>
+      <div class='p-15' style='padding-left: 5px; padding-top: 8px'>
+         <div class='data'>
+            <%= replica %>
+         </div>
+      </div>
+   </div>

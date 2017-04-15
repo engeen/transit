@@ -1,6 +1,88 @@
-<audio id='player' src="<%= @job.audio %>" controls style='width: 100%'></audio>
+<script id="replicaTmpl" type="text/x-jquery-tmpl">
+      <%= render "replicas/replica", 
+        id: "r${id}", 
+        timestamp: "${timestamp}", 
+        actor: "${actor}", 
+        replica: "${replica}",
+        data_id: "",
+        data_timestamp: "${data_timestamp}" %>
+</script>
+<style>
+   .replica > div > .data > p {
+      padding: 0;
+      margin: 0;
+   }
 
- <div id="comment" class="comment demo" style='border: 1px Solid black; width: 100%; height: 50px'></div>
+   div.data {
+    width: 100%;
+   }
+
+   span.acts {
+    display: none;
+    padding: 0;
+    margin: 0;
+   }
+
+   span.acts button {
+    display: inline;
+    padding: 1px;
+    padding-left: 3px;
+    padding-right: 2px;
+   }
+
+   a.hover_toggler {
+    width: 170px;
+    display: block;
+    margin-left: -70px;
+    background: none;
+    padding-left: 0px;
+    padding-top: 0px;
+   }
+    a.hover_toggler:hover {
+      background-color: none;
+      color: none;
+    }
+
+   a.hover_toggler:hover > span.acts {
+    display: inline-block;
+    /*background-color: red;*/
+    width: 70px;
+   }
+
+   a.hover_toggler > small {
+    padding-left: 70px;
+   }
+
+   a.hover_toggler:hover > small {
+    padding-left: 0px;
+   }
+
+
+   .auth span {
+    cursor: pointer;
+   }
+
+
+</style>
+
+
+<div id='infobar' class='container'>
+   <audio id='player' src="<%= @job.audio %>" controls style='width: 100%'></audio>
+   <%= render "infobar" %>
+</div>
+
+<div id='replicas' class='container'>
+   <% @job.replicas.each do |r| %>
+      <%= render "replicas/replica", 
+        id: "rp#{r.id}", 
+        timestamp: r.formatted_timestamp, 
+        actor: r.actor || '?', 
+        replica: (r.value.html_safe rescue ''),
+        data_id: r.id,
+        data_timestamp: r.timestamp
+      %>
+   <% end %>
+</div>
 
 
 
@@ -8,36 +90,169 @@
 
 var isPlaying = false;
 var lastTime = 0;
+// Should work for most cases
+function uniqId() {
+  return Math.round(new Date().getTime() + (Math.random() * 100));
+}
+
+function secondsTimeSpanToHMS(s) {
+    var h = Math.floor(s/3600); //Get whole hours
+    s -= h*3600;
+    var m = Math.floor(s/60); //Get remaining minutes
+    s -= m*60;
+    s = s.toFixed(2);
+    return h+":"+(m < 10 ? '0'+m : m)+":"+(s < 10 ? '0'+s : s); //zero padding on minutes and seconds
+}
+
+
+
+function bindActionsPlay(selector) {
+  selector.click(function(elem) {
+    //debugger;
+    const _timestamp = $(elem.target).parents('.replica').data('timestamp');
+    document.getElementById('player').currentTime = _timestamp;
+    document.getElementById('player').play();
+  });
+}
+
+function bindActionsRemove(selector) {
+  selector.click(function(elem) {
+    const _id = $(elem.target).parents('.replica').data('id');
+    if (confirm('Удалить реплику?')) {
+       $.ajax(
+       {
+         url: `<%= job_url(@job.id) %>/replicas/${_id}`,
+         dataType: 'json',
+         method: "DELETE"
+       }).success(function(data) {
+         $(`#rp${_id}`).remove();
+         document.getElementById('player').pause();
+       });
+
+    }
+
+  });
+}
+
+
+function bindSelectActor(selector) {
+  selector.click(function(event) {
+    const _id = $(event.target).parents('.replica').data('id');
+    $.ajax({
+       url: `<%= job_url(@job.id) %>/actors`,
+       dataType: 'html',
+       method: "GET"
+    }).success(function(data) {
+      $(event.target).replaceWith(data);
+    });
+
+  });
+}
+
+
+
+function bindDataChange(selector) {
+    //debugger;
+    selector.change(function(elem) {
+     const _id = $(elem.target).parents('.replica').data('id');
+     const _timestamp = $(elem.target).parents('.replica').data('timestamp');
+     $.ajax(
+     {
+       url: `<%= job_url(@job.id) %>/replicas/${_id}`, 
+       data: { replica: { id: _id, timestamp: _timestamp, value: elem.target.innerHTML} },
+       dataType: 'json',
+       method: "PUT"
+     }).success(function(data) {
+      //alert('updated test');
+     });
+   }); 
+}
 
 $(document).ready(function() {
 
-   new Medium({
-       element: document.getElementById('comment'),
-       mode: Medium.partialMode,
-       placeholder: 'Your Comment'
+
+
+   $('div.data').each(function(index,elem) {
+      //debugger;
+      m = new Medium({
+             element: $(elem)[0],
+             autofocus: true,
+             mode: Medium.partialMode,
+             placeholder: '<p></p>'
+         });
    });
 
+  bindDataChange($('.data'));
+  bindActionsPlay($('button.play'));
+  bindActionsRemove($('button.remove'));
+  bindSelectActor($('.auth > span'));
+
 	$(window).keydown(function(event){
+
+      if (( event.which == 13 ) && (event.shiftKey)) { 
+         event.preventDefault();
+         cTime = document.getElementById('player').currentTime;
+         fTime = secondsTimeSpanToHMS(cTime);
+         uid = uniqId();
+         $('#replicaTmpl').tmpl({ id: uid, data_timestamp: cTime, timestamp: fTime, actor: "?", replica: "" }).appendTo('#replicas');
+
+         // debugger;
+         m = new Medium({
+             element: $(`#r${uid} > div > div.data`)[0],
+             autofocus: true,
+             mode: Medium.partialMode,
+             placeholder: ''
+         });
+         m.focus();
+
+         $.post("<%= job_replicas_url(@job)%>", { htmlId: `#r${uid}`, timestamp: cTime }, function( data ) {
+            $(data.htmlId).attr("data-id", data.id);
+            $(data.htmlId).attr("id", `rp${data.id}`);
+            //debugger;
+            bindDataChange($(`#rp${data.id} .data`));
+            bindActionsPlay($(`#rp${data.id} button.play`));
+            bindActionsRemove($(`#rp${data.id} button.remove`));
+         } );
+
+      }
+
 		if (( event.which == 32 ) && (event.shiftKey)) {
    			event.preventDefault();
    			if (isPlaying) {
    				document.getElementById('player').pause();
    				isPlaying=false;
-   				lastTime = document.getElementById('player').currentTime;
    				//alert(lastTime);
    			} else 
    			{
    				document.getElementById('player').play()
+           lastTime = document.getElementById('player').currentTime;
    				isPlaying=true;
    			}
   		}
 
 
+      if (event.ctrlKey) {
 
-		if (( event.which == 37 ) && (event.shiftKey)) {
-			event.preventDefault();
-			document.getElementById('player').currentTime = lastTime;
-		}
+         if (( event.which == 37 ) && (event.shiftKey)) {
+               event.preventDefault();
+               lastTime = document.getElementById('player').currentTime = document.getElementById('player').currentTime - 0.5;
+            }
+         if (( event.which == 39 ) && (event.shiftKey)) {
+               event.preventDefault();
+               lastTime = document.getElementById('player').currentTime = document.getElementById('player').currentTime + 0.5;
+            }
+
+      } else {
+
+         if (( event.which == 37 ) && (event.shiftKey)) {
+            event.preventDefault();
+            document.getElementById('player').currentTime = lastTime;
+         }
+
+      }
+
+
+
 
 
 	});

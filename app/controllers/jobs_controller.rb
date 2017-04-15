@@ -21,6 +21,12 @@ class JobsController < ApplicationController
   def edit
   end
 
+
+  def actors
+    
+  end
+
+
   # POST /jobs
   # POST /jobs.json
   def create
