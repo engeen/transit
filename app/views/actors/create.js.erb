@@ -1,0 +1,16 @@
+<% if @actor.persisted? %>
+	//debugger;
+	// Взять идентификатор реплики для установки значения если есть
+	_replica_id = $('#modals .modal').data('replica_id');
+	// Обновить реплику
+	$(`#rp${_replica_id}`).data('actor', '<%= @actor.short_name %>');
+	$(`#rp${_replica_id}`).children('.auth').children('*').remove();
+	$(`#rp${_replica_id}`).children('.auth').append('<span><%= @actor.short_name %>-</span>');
+	bindSelectActor($(`#rp${_replica_id}`).children('.auth').children('span'));
+
+	// Закрыть модальное окно
+	$('#modals .modal').modal('hide');
+<% else %>
+	// Перерисовать модальное окно с сообщениями об ошибках
+	$('#modals .modal .modal-dialog .modal-content').replaceWith('<%= j render "modal" %>')
+<% end %>

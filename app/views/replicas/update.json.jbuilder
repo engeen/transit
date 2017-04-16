@@ -1,5 +1,6 @@
 json.set! :htmlId, @htmlId
 json.set! :id, @replica.id
-json.set! :timestamp
-json.set! :value
+json.set! :actor, @replica.actor
+json.set! :timestamp, @replica.timestamp
+json.set! :value, @replica.value
 

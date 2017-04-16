@@ -1,0 +1,5 @@
+<div class="modal fade" <%= "data-replica_id=#{params[:replica_id]}" if params.has_key?(:replica_id) %>>
+	<div class="modal-dialog" role="document">
+		<%= render "modal" %>
+	</div>
+</div>

@@ -1,5 +1,5 @@
 
-   <div id="<%= id %>" class='replica d-flex align-items-stretch align-top' data-id="<%= data_id %>" data-timestamp="<%= data_timestamp %>">
+   <div id="<%= id %>" class='replica d-flex align-items-stretch align-top' data-actor='<%= actor %>' data-id="<%= data_id %>" data-timestamp="<%= data_timestamp %>">
       <div class='time d-flex p-2 text-right' style='flex-basis: 100px; flex-shrink: 0;background-color: #FFF9C9'>
         <a class='hover_toggler'>
          <span class='acts text-left'>
@@ -10,7 +10,7 @@
          <small>(<%= timestamp %>)</small>
         </a>
       </div>
-      <div class='auth p-2 text-right align-top' style='flex-basis: 50px; flex-shrink: 0;background-color: #FFF9C9; border-right: 1px Solid #DAD18F' >
+      <div class='auth p-2 text-right align-top' style='flex-basis: 100px; flex-shrink: 0;background-color: #FFF9C9; border-right: 1px Solid #DAD18F' >
            <span><%= actor %>-</span>
         </a>
       </div>

@@ -1,10 +1,86 @@
-<div class="dropdown">
-  <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-    ?
+<% _randid = SecureRandom.hex %>
+
+<div id='<%= _randid %>' class="dropdown show">
+  <button class="btn btn-sm btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+    <%= params[:selected_actor] || "?" %>
   </button>
   <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-    <a class="dropdown-item" href="#">Action</a>
-    <a class="dropdown-item" href="#">Another action</a>
-    <a class="dropdown-item" href="#">Something else here</a>
+  	<% @job.actors.each do |a| %>
+    	<a class="dropdown-item select_actor" data-actor='<%= a.short_name %>' href="#"><%= a.display_name %></a>
+    <% end %>
+     <div class="dropdown-divider"></div>
+     <a class="dropdown-item new_link" href="#">Новое лицо</a>
   </div>
+
+	<script>
+		$('#<%= _randid %> button:nth-child(1)').focus();
+		// $('#<%= _randid %>').keydown(function(e) {
+	 //     	if (e.keyCode == 27) { // escape key maps to keycode `27`
+	    	// _parent = $(this).parents('.replica');
+	    	// $(_parent).children('.auth').append('<span>'+$(this).parents('.replica').data('actor')+'-</span>').ready(function () {
+	    	// 	//debugger;
+	    	// 	bindSelectActor($(_parent).children('.auth').children('span'));
+	    	// });
+	    	// $('#<%= _randid%>').remove();
+
+	        	//alert('test');// <DO YOUR WORK HERE>
+		   //  }
+	    // });
+
+
+	    $('#<%= _randid %> .select_actor').click(function(event) {
+	    	//debugger;
+		    const _replica_id = $(event.target).parents('.replica').data('id');
+		    $.ajax({
+		       url: `<%= job_url(@job.id) %>/replicas/${_replica_id}`,
+		       data: { replica: { actor: $(event.target).data('actor') } },
+		       dataType: 'json',
+		       method: "PUT"
+		    }).success(function(data) {
+		    	$(`#rp${_replica_id}`).data('actor', data.actor);
+		    	$(`#rp${_replica_id}`).children('.auth').append('<span>'+data.actor+'-</span>').ready(function() {
+		    		bindSelectActor($(`#rp${_replica_id}`).children('.auth').children('span'));	
+		    	});
+		    	$(`#rp${_replica_id}`).children('.auth').children('div').remove();
+				
+		    });
+		    return false;
+		 });
+
+
+
+
+		// debugger;
+	    $('#<%= _randid %> .new_link').click(function(event) {
+	    	//debugger;
+		    const _replica_id = $(event.target).parents('.replica').data('id');
+		    $.ajax({
+		       url: `<%= job_url(@job.id) %>/actors/new`,
+		       data: { replica_id: _replica_id },
+		       dataType: 'script',
+		       method: "GET"
+		    });
+		    return false;
+		 });
+
+	    $('#<%= _randid %> button:nth-child(1)').blur(function() {
+
+	    	// _parent = $(this).parents('.replica');
+	    	// $(_parent).children('.auth').append('<span>'+$(this).parents('.replica').data('actor')+'-</span>').ready(function () {
+	    	// 	//debugger;
+	    	// 	bindSelectActor($(_parent).children('.auth').children('span'));
+	    	// });
+	    	// $('#<%= _randid%>').remove();
+	    });
+		$('#<%= _randid %>').on('hide.bs.dropdown', function () {
+	    	_parent = $(this).parents('.replica');
+	    	$(_parent).children('.auth').append('<span>'+$(this).parents('.replica').data('actor')+'-</span>').ready(function () {
+	    		//debugger;
+	    		bindSelectActor($(_parent).children('.auth').children('span'));
+	    	});
+	    	$('#<%= _randid%>').remove();
+
+		});
+	</script>
+
 </div>

@@ -14,6 +14,8 @@
 //= require jquery-tmpl
 //= require bootstrap
 //= require jquery_ujs
+// require editable/bootstrap-editable
+// require editable/rails
 //= require turbolinks
 //= require medium
 //= require_tree .

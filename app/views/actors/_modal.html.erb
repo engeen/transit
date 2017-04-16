@@ -1,0 +1,38 @@
+<div class="modal-content">
+  <div class="modal-header">
+    <h5 class="modal-title">Новое действующее лицо</h5>
+    <button type="button" class="close" data-dismiss="modal" aria-label="Закрыть">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <%= form_for @actor, url: job_actors_url(@job), remote: true do |f| %>
+  <div class="modal-body">
+  	<div class='for-group'>
+  	<div class='row'>
+        <div class='col-8'>
+        	<%= f.label :name, "Имя персонажа" %><%= f.text_field :name, class: 'form-control' %> 
+        </div>
+        <div class='col-4'>
+        	<%= f.label :short_name, "Сокращенно" %><%= f.text_field :short_name, class: 'form-control' %> 
+				<small class="form-text text-muted">Макс. 3 символа</small>
+	        </div>
+    </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+  	<%= f.submit "Сохранить", class: "btn btn-primary" %>
+    <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+  </div>
+  <% end %>
+
+  <script>
+	  $('#actor_name').keypress(function(event) {
+	  	 //debugger;
+	  	firstChar = $(this).val().substring( 0, 1 ); // == "c"
+		firstChar.toUpperCase();
+	  	 $('#actor_short_name').val(firstChar);
+	  });
+
+  </script>
+
+</div>

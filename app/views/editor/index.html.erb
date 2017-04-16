@@ -76,7 +76,7 @@
       <%= render "replicas/replica", 
         id: "rp#{r.id}", 
         timestamp: r.formatted_timestamp, 
-        actor: r.actor || '?', 
+        actor: (r.actor || '?'), 
         replica: (r.value.html_safe rescue ''),
         data_id: r.id,
         data_timestamp: r.timestamp
@@ -84,7 +84,7 @@
    <% end %>
 </div>
 
-
+<div id='modals'></div>
 
 <script>
 
@@ -138,8 +138,10 @@ function bindActionsRemove(selector) {
 function bindSelectActor(selector) {
   selector.click(function(event) {
     const _id = $(event.target).parents('.replica').data('id');
+    const _selected_actor = $(event.target).parents('.replica').data('actor');
     $.ajax({
        url: `<%= job_url(@job.id) %>/actors`,
+       data: { selected_actor: _selected_actor },
        dataType: 'html',
        method: "GET"
     }).success(function(data) {
@@ -212,6 +214,7 @@ $(document).ready(function() {
             bindDataChange($(`#rp${data.id} .data`));
             bindActionsPlay($(`#rp${data.id} button.play`));
             bindActionsRemove($(`#rp${data.id} button.remove`));
+            bindSelectActor($(`#rp${data.id}  .auth > span`));
          } );
 
       }
