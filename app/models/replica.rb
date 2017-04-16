@@ -1,7 +1,7 @@
 class Replica < ApplicationRecord
   belongs_to :job
 
-
+  scope :by_timestamp, -> { order(timestamp: :asc)}
 
 
   def formatted_timestamp 

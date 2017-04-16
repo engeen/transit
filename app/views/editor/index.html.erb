@@ -72,7 +72,7 @@
 </div>
 
 <div id='replicas' class='container'>
-   <% @job.replicas.each do |r| %>
+   <% @job.replicas.by_timestamp.each do |r| %>
       <%= render "replicas/replica", 
         id: "rp#{r.id}", 
         timestamp: r.formatted_timestamp, 
@@ -196,7 +196,26 @@ $(document).ready(function() {
          cTime = document.getElementById('player').currentTime;
          fTime = secondsTimeSpanToHMS(cTime);
          uid = uniqId();
-         $('#replicaTmpl').tmpl({ id: uid, data_timestamp: cTime, timestamp: fTime, actor: "?", replica: "" }).appendTo('#replicas');
+
+         greaterTimestampElem = null
+         //Найти первый элемент у которого data-timestamp > cTime
+         $('.replica').each(function() {
+            if ($(this).attr('data-timestamp') > cTime) {
+                greaterTimestampElem = $(this);
+                return false;
+            }
+        });
+
+         new_replica = null;
+         if (greaterTimestampElem == null) {
+            new_replica = $('#replicaTmpl').tmpl({ id: uid, data_timestamp: cTime, timestamp: fTime, actor: "?", replica: "" }).appendTo('#replicas');
+         } else 
+         {
+            //debugger;
+            new_replica = $('#replicaTmpl').tmpl({ id: uid, data_timestamp: cTime, timestamp: fTime, actor: "?", replica: "" }).insertBefore(greaterTimestampElem);
+         }
+
+         $(new_replica)[0].scrollIntoView();
 
          // debugger;
          m = new Medium({
